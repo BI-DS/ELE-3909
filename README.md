@@ -1,4 +1,4 @@
-# GRA-3909
+# ELE-3909
 This repository contains different materials used throughout the course, e.g. examples shown in lectures, suggestd solutions for homework, problems discussed in tutorial sessions, etc. You should follow this repository frequently, as different materials will become available as we cover th
 
 ## Honor Code
