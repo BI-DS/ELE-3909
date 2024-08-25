@@ -1,0 +1,45 @@
+kind: Job 
+apiVersion: batch/v1
+metadata:
+  name: vade 
+spec:
+  parallelism: 1
+  template:
+    spec:
+      restartPolicy: OnFailure 
+      containers:
+        - name: spot
+          image: "rogelioandrade/coevae:v2"
+          workingDir: /mnt/azure/vade/python
+          command: ["bash","./run_job.sh"]
+          volumeMounts:
+          - name: azure
+            mountPath: /mnt/azure     
+          - name: dshm
+            mountPath: /dev/shm  
+          imagePullPolicy: Always
+      nodeSelector:
+        spotnode1/gpu: "true"
+        #nvidia1/gpu: "true"
+      tolerations:
+        - key: "spotnode1"
+          operator: "Equal"
+          value: "myvm"
+          effect: "NoSchedule" 
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule" 
+      #tolerations:
+      #  - key: "nvidia1"
+      #    operator: "Equal"
+      #    value: "myvm"
+      #    effect: "NoSchedule" 
+      volumes:
+        - name: azure
+          persistentVolumeClaim:
+            claimName: azurefile
+        - name: dshm
+          emptyDir:
+            medium: Memory
+
