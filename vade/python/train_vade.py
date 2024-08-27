@@ -14,24 +14,9 @@ tf.get_logger().setLevel('INFO')
 from enc_dec import DecMNIST, EncMNIST
 from vade import VADE
 
-from scipy.optimize import linear_sum_assignment as linear_assignment
-#from utils import linear_assignment
-
-def image_processing(row):
-  x_train = row['image']/255
-  
-  row['image'] = x_train
-  return row
-
-def cluster_acc(Y_pred, Y):
-  assert Y_pred.size == Y.size
-  D = max(Y_pred.max(), Y.max())+1
-  w = np.zeros((D,D), dtype=np.int64)
-  for i in range(Y_pred.size):
-    w[Y_pred[i], Y[i]] += 1
-  #ind = linear_assignment(w.max() - w)
-  ind = np.transpose(np.asarray(linear_assignment(w.max() - w)))
-  return sum([w[i,j] for i,j in ind])*1.0/Y_pred.size, w
+from utils import image_processing, cluster_acc, nice_scatter
+import random
+from sklearn.manifold import TSNE
 
 def train():
     parser = argparse.ArgumentParser()
@@ -41,16 +26,23 @@ def train():
     parser.add_argument("--save_every", default= 100, help="No of epochs to save cktps", type=int)
     parser.add_argument("--eval_every", default= 20, help="No of epochs to eval cluster acc", type=int)
     parser.add_argument("--K", default= 10, help="No of clusters", type=int)
-    parser.add_argument("--alpha", default= 10, help="Scaling for log p(x|z)", type=int)
+    parser.add_argument("--alpha", default= 35, help="Scaling for log p(x|z)", type=int)
     parser.add_argument("--batch_size", default= 256, help="No. of samples that the encoder draws", type=int)
     parser.add_argument("--dset", default= 'mnist', help="Data set")
-    parser.add_argument("--output_folder", default= '../output', help="Output folder to save outputs")
+    parser.add_argument("--output_folder", default= '../output/vade', help="Output folder to save outputs")
     parser.add_argument("--load_weights", action='store_true',
             help="Whether to load pretrained weigths and use mu and var fitted by a GMM as starting points")
     
     args = parser.parse_args()
     print (args)
     print("Num GPUs:", len(tf.config.list_physical_devices('GPU')))
+    
+    try:
+        os.mkdir(args.output_folder)
+    except OSError:
+        print("Creation of the directory {}  failed".format(args.output_folder))
+    else:
+        print("Successfully created the directory {}".format(args.output_folder))
     
     tr_data, info = tfds.load('mnist',split='train', with_info=True)
     te_data = tfds.load('mnist',split='test')
@@ -128,22 +120,28 @@ def train():
         # increse checkpoint  
         checkpoint.step.assign_add(1)
 
+    idx = random.sample(range(z.shape[0]),2000)
+    # dimensionality reduction
+    z_2d = TSNE(n_components=2,n_jobs=-1).fit_transform(z.numpy()[idx])
+    # plot a nice scatter
+    nice_scatter(z_2d, y[idx], args, acc_all[-1])
+
     # plot losses and acc
     plt.plot(acc_all)
     plt.title('acc {:.4f}'.format(acc_all[-1]))
-    plt.savefig('../output/acc_'+str(args.alpha)+'.pdf')
+    plt.savefig(os.path.join(args.output_folder,'acc_'+str(args.alpha)+'.pdf'))
     plt.close()
 
     plt.plot(llik_all)
-    plt.savefig('../output/llik.pdf')
+    plt.savefig(os.path.join(args.output_folder,'llik.pdf'))
     plt.close()
     
     plt.plot(kl_all)
-    plt.savefig('../output/kl.pdf')
+    plt.savefig(os.path.join(args.output_folder,'kl.pdf'))
     plt.close()
     
     plt.plot(entropy_all)
-    plt.savefig('../output/entropy.pdf')
+    plt.savefig(os.path.join(args.output_folder,'entropy.pdf'))
     plt.close()
 
 if __name__ == '__main__':

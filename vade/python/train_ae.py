@@ -14,14 +14,9 @@ tf.get_logger().setLevel('INFO')
 from enc_dec import DecMNIST, EncMNIST
 from ae import AutoEncoder
 
-#from scipy.optimize import linear_sum_assignment as linear_assignment
-from utils import linear_assignment
+from scipy.optimize import linear_sum_assignment as linear_assignment
+from utils import plot_digits, image_processing
 
-def image_processing(row):
-  x_train = row['image']/255
-  
-  row['image'] = x_train
-  return row
 
 def cluster_acc(Y_pred, Y):
   assert Y_pred.size == Y.size
@@ -29,8 +24,7 @@ def cluster_acc(Y_pred, Y):
   w = np.zeros((D,D), dtype=np.int64)
   for i in range(Y_pred.size):
     w[Y_pred[i], Y[i]] += 1
-  ind = linear_assignment(w.max() - w)
-  #ind = np.transpose(np.asarray(linear_assignment(w.max() - w)))
+  ind = np.transpose(np.asarray(linear_assignment(w.max() - w)))
   return sum([w[i,j] for i,j in ind])*1.0/Y_pred.size, w
 
 def train():
@@ -113,25 +107,6 @@ def train():
     plt.plot(loss_all)
     plt.savefig(os.path.join(args.output_folder,'loss_ae.pdf'))
     plt.close()
-
-def plot_digits(x_real, x_gen, n, args):
-  plt.figure(figsize=(20, 4))
-  for i in range(n):
-      # Display original
-      ax = plt.subplot(2, n, i + 1)
-      plt.imshow(x_real[i])
-      plt.gray()
-      ax.get_xaxis().set_visible(False)
-      ax.get_yaxis().set_visible(False)
-
-      # Display reconstruction
-      ax = plt.subplot(2, n, i + 1 + n)
-      plt.imshow(x_gen[i])
-      plt.gray()
-      ax.get_xaxis().set_visible(False)
-      ax.get_yaxis().set_visible(False)
-  plt.savefig(os.path.join(args.output_folder,'gen_digits.pdf'))
-  plt.close()
 
 if __name__ == '__main__':
     train()
