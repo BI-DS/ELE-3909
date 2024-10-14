@@ -78,6 +78,28 @@ class GMM_Parameters(layers.Layer):
         z = pz_c.sample(L)
 
         return z
+    
+    def get_pi(self, z, K, batch_size=1):
+        log_p_c = tf.repeat(tf.expand_dims(self.log_p_c, axis=0),repeats=batch_size, axis=0)
+
+        # XXX note mu and var have in each column the params for one Guassian out of K
+        mu   = tf.repeat(tf.expand_dims(self.mu, axis=0), repeats=batch_size, axis=0)
+        log_var  = tf.repeat(tf.expand_dims(self.log_var, axis=0), repeats=batch_size, axis=0)
+        std = tf.math.exp(0.5*log_var)
+        
+        # I need to loop through K Gaussians!!!
+        all_log_pz_c = []
+        for i in range(self.K):
+            pz_c = self.distribution(mu[...,i], std[...,i])
+            all_log_pz_c.append(pz_c.log_prob(z))
+        
+        log_pz_c   = tf.stack(all_log_pz_c,axis=1)
+        log_pc_pzc = log_p_c + log_pz_c
+        pc_pzc     = tf.math.exp(log_pc_pzc) 
+
+        pi = pc_pzc[:,K]/tf.reduce_sum(pc_pzc)
+        
+        return pi.numpy()
 
 class DecMNIST(layers.Layer):
     def __init__(self,

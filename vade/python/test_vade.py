@@ -92,13 +92,17 @@ def train():
     nice_scatter(z_2d, y[idx], args, acc)
 
     all_digits = []
+    all_pis = []
     print('generating images from all clusters...')
     for i in range(10):
-        z_prior = model.gmm.generate_prior(K=i,L=10)
+        z_prior = model.gmm.generate_prior(K=i,L=7)
+        for k in range(7):
+            pi = model.gmm.get_pi(z_prior[k,...],K=i,batch_size=1)
+            all_pis.append(pi[0])
         px_z    = model.dec(z_prior)
         x_hat   = px_z.mean()
         all_digits.extend(x_hat)
-    plot_grid(all_digits, N=10, C=10)
+    plot_grid(all_digits, N=10, C=7, pi=all_pis)
 
     print('elapsed time: {}'.format(timedelta(seconds=time.time()-start)))
 

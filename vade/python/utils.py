@@ -4,16 +4,17 @@ from scipy.optimize import linear_sum_assignment as linear_assignment
 import os
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-def plot_grid(images,N=10,C=10,figsize=(24., 28.), plot_name='../output/vade/generative_model.png'):
+def plot_grid(images,N=10,C=10,figsize=(30., 34.), plot_name='../output/vade/generative_model.png', pi=None):
     fig = plt.figure(figsize=figsize)
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                      nrows_ncols=(N, C),  
                      axes_pad=0,  # pad between Axes in inch.
                      )
-    for ax, im in zip(grid, images):
+    for i, ax, im in zip(range(C*N),grid, images):
         ax.imshow(im)
-        ax.set_xticks([])
-        ax.set_yticks([])
+        ax.text(15, 28, 'Pr={:.2f}'.format(pi[i]), ha='right', va='bottom',fontsize=20,color='r')
+        #ax.set_xticks([])
+        #ax.set_yticks([])
 
     plt.savefig(plot_name)
 
