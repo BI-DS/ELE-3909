@@ -23,6 +23,7 @@ class VADE(tf.keras.Model):
 
     def call(self, x):
         qz_x = self.enc(x)
+        # pz is a list with K priors
         pi, pz_c = self.gmm(qz_x.mean())
         px_z = self.dec(qz_x.sample())
 

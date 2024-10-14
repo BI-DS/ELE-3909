@@ -68,6 +68,17 @@ class GMM_Parameters(layers.Layer):
         
         return pi, pz_c_all
 
+    def generate_prior(self, K=1, L=1):
+        mu       = self.mu[...,K]
+        log_var  = self.log_var[...,K]
+        std = tf.math.exp(0.5*log_var)
+        
+        pz_c = tfd.MultivariateNormalDiag(mu,std)
+
+        z = pz_c.sample(L)
+
+        return z
+
 class DecMNIST(layers.Layer):
     def __init__(self,
                  latent_dim=512,
