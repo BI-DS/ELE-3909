@@ -15,5 +15,11 @@ You can run the codes in the folder `python` directly from `Google Colab` (make 
 %cd ELE-3909/vade/python
 
 # train VADE
-!python train_vade.py --epochs 350 --load_weights 
+!python train_vade.py --epochs 400 --load_weights 
+```
+
+Training the model takes long time on Google Colab. Alternatively, you can run the file `test_vade.py` which loads a trained model for 400 epochs.
+
+```python
+!python test_vade.py
 ```
