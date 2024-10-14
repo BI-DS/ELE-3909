@@ -4,7 +4,7 @@ from scipy.optimize import linear_sum_assignment as linear_assignment
 import os
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-def plot_grid(images,N=10,C=10,figsize=(24., 28.), plot_name='../output/generative_model.png'):
+def plot_grid(images,N=10,C=10,figsize=(24., 28.), plot_name='../output/vade/generative_model.png'):
     fig = plt.figure(figsize=figsize)
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                      nrows_ncols=(N, C),  
