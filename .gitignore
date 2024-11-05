@@ -1,4 +1,5 @@
 *.pdf
+*.csv
 __pycache__
 text_data
 grades.xlsx
