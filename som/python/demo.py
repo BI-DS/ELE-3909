@@ -41,8 +41,8 @@ def main():
 
     # fit kmeans at the top of som for different number of k
     #som.cluster_som(range_k=[6,10,14,18,22,26,30], batch_size=10)
-    # for simplicity I choose only k=6
-    som.cluster_som(range_k=[6], batch_size=10)
+    # for simplicity I choose only 2 values k = [3,7]
+    som.cluster_som(range_k=[3, 8], batch_size=10)
 
     plt.figure()
     plt.imshow(som.som)
