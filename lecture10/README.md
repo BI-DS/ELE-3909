@@ -4,7 +4,7 @@ In the folder `som` there is a code called `demo.py` (inside the folder `python`
 # clone repository
 !git clone https://github.com/BI-DS/ELE-3909.git
 
-# move to right folder and install requirements
+# move to right folder 
 %cd ELE-3909/som/python
 
 # run demo
